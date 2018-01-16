@@ -1,0 +1,29 @@
+---
+title: "readme"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Collection of tutorials to analyze multivariate abundance data
+
+These are some tutorials I've come across and have found helpful.  When possible, I've added links to the original sources of these scripts.
+
+### vegan package
+http://cc.oulu.fi/~jarioksa/opetus/metodi/vegantutor.pdf
+
+
+
+
+
+
+### mvabund package, with key function manyglm()
+http://environmentalcomputing.net/introduction-to-mvabund/
+
+
+
+
+### boral package, with key function boral()
+http://eco-stats.blogspot.com/2014/11/boral-reliable-construction-materials.html
