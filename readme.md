@@ -1,10 +1,10 @@
-Collection of tutorials to analyze multivariate abundance data in R
+Collection of tutorials to analyze community data in R
 ================
 
 Most of these are tutorials that I've come across and have found helpful. A few bits I made for myself/friends. When possible, I've added R script and links. Feel free to suggest edits and additions.
 
-vegan-centric
--------------
+**vegan-centric**
+-----------------
 
 ### Multivariate analyses of ecological communities in R: vegan tutorial
 
@@ -22,8 +22,8 @@ Author: Jeff Powell; Type: R markdown; Source: <http://www.hiercourse.com/docs/v
 #source("code/variationPartitioning.Rmd")
 ```
 
-mvabund-centric
----------------
+**mvabund-centric**
+-------------------
 
 ### mvabund: an R package for model-based analysis of multivariate abundance data
 
@@ -41,8 +41,8 @@ Author: David Warton; Type: R script from a course; Source: <http://eco-stats.bl
 
 Author: Rachel V. Blakey & Andrew Letten; Type: Blog post; Source: <http://environmentalcomputing.net/introduction-to-mvabund/>
 
-boral-centric
--------------
+**boral-centric**
+-----------------
 
 ### boral – Bayesian Ordination and Regression Analysis of Multivariate Abundance Data in R
 
@@ -62,8 +62,8 @@ Author: David I.Warton. F. Guillaume Blanchet, Robert B.O’Hara, Otso Ovaskaine
 #source("code/speciesrichness-auxilaryfunctions.R")
 ```
 
-misc
-----
+**misc**
+--------
 
 ### Methods used to analyze associations between wood endophyte OTUs and wood traits
 
