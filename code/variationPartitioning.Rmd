@@ -1,0 +1,188 @@
+---
+title: "Variation Partitioning"
+author: "Jeff Powell"
+date: "17 April 2015"
+output: html_document
+---
+
+Canonical approaches calculate the correspondence between community composition and environmental properties, and allow for the estimation of each variable's explanatory power as a predictor of community shifts. These environmental properties may belong to different categories (e.g., chemical, physical, climatic) and/or may be measured along known spatial gradients. In these cases, we may want to partition variation in community composition to groups of variables in order to gain a general sense of how important each group of variables is for driving community shifts. We can do this using the \fun{varpart} function in the \pack{vegan} package. 
+
+In this example, we partition variation in fungal communities associated with tree leaves to three categories: leaf type, leaf chemistry, and spatial relationships on the landscape.
+
+```{r}
+
+# load the vegan library
+library(vegan)
+
+# read in tables containing species, environmental variables, and geographic distances
+endo.spp <- read.csv('data/endophytes.csv')  # column names represent OTUs
+endo.env <- read.csv('data/endophytes_env.csv')
+endo.dist <- read.csv('data/endophytes_dist.csv')
+
+dim(endo.spp)
+str(endo.env)
+str(endo.dist)
+
+```
+
+The species-sample matrix includes relative abundance data for 874 fungal taxa from 98 samples.
+
+The environmental variables include the tree species the leaves were collected from (\code{species}), whether the leaves were collected fresh from the canopy or from the litter layer (\code{type}), and chemical characteristics (\code{percentC}, \code{percentN}, \code{CNratio}).
+
+The geographic coordinates of the trees represent the relative position of trees between tree rows (\code{x_coord}) and within rows of trees (\code{y_coord}) at the study site. This can also be visualised by plotting the dataframe.
+
+```{r}
+
+# look at the spatial arrangment of samples in two dimentions
+plot(endo.dist)
+
+```
+
+We can treat the spatial coordinates as is to represent unmeasured linear gradients in the environment, but we may also be interested in whether there are nonlinear gradients present that may be influencing community shifts. We can test this by calculating Principal Coordinates of Neighbour Matrices (PCNMs).
+
+```{r}
+# represent spatial patterns through PCNMs
+endo.pcnm <- pcnm(dist(endo.dist))
+# loadings for each PCNM axis can be extracted using scores()
+str(scores(endo.pcnm))
+
+```
+
+The patterns represented by the resulting variables are fairly straightforward when samples are evenly spaced in one direction (see Borcard and Legendre, 2002, Ecological Modelling 153:51–68). Two-dimensional sampling, especially when samples are not evenly spaced, results in variables with patterns that are not as easy to interpret, but the first axes tend to represent large scale patterns while the later axes tend to represent smaller scale patterns. Here we plot the first six PCNM axes to visualise the patterns that they represent.
+
+```{r eval=F}
+
+# ordisurf() fits a smooth surface model to the data, but the output is suppressed here
+# as a biproduct, ordisurf returns the plot that we want
+par(mfrow=c(3, 2))
+ordisurf(endo.dist,scores(endo.pcnm,choi=1),bubble=4,
+		 main='PCNM 1')
+ordisurf(endo.dist,scores(endo.pcnm,choi=2),bubble=4,
+		 main='PCNM 2')
+ordisurf(endo.dist,scores(endo.pcnm,choi=3),bubble=4,
+		 main='PCNM 3')
+ordisurf(endo.dist,scores(endo.pcnm,choi=4),bubble=4,
+		 main='PCNM 4')
+ordisurf(endo.dist,scores(endo.pcnm,choi=5),bubble=4,
+		 main='PCNM 5')
+ordisurf(endo.dist,scores(endo.pcnm,choi=6),bubble=4,
+		 main='PCNM 6')
+
+```
+
+```{r echo=FALSE, fig.height=10, fig.width=14}
+# plot the first five PCNM axes to visualise the patterns that they represent
+# ordisurf() fits a smooth surface model to the data, but the output is suppressed here
+# as a biproduct, ordisurf returns the plot that we want
+par(mfrow=c(2, 3))
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=1),bubble=4,
+		 main='PCNM 1')
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=2),bubble=4,
+		 main='PCNM 2')
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=3),bubble=4,
+		 main='PCNM 3')
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=4),bubble=4,
+		 main='PCNM 4')
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=5),bubble=4,
+		 main='PCNM 5')
+pcnm.ordi <- ordisurf(endo.dist,scores(endo.pcnm,choi=6),bubble=4,
+		 main='PCNM 6')
+
+```
+
+Now that we have two matrices, one representing variation in measured environmental variables and the other representing spatial distributions of samples, and we can estimate the amount of variation in community composition that each explains.
+
+```{r}
+
+# do predictor matrices affect community composition?
+
+# environmental matrix as predictor
+cap.env <- capscale(endo.spp ~ ., data=endo.env, 
+  				distance='bray')
+cap.env
+
+# spatial matrix as predictor
+cap.pcnm <- capscale(endo.spp ~ ., 
+					 data=as.data.frame(scores(endo.pcnm)), 
+					 distance='bray')
+cap.pcnm
+
+```
+
+We do not necessarily want to use all variables, just those that appear to efficiently explain variation in community composition. This is especially the case for PCNMs, since there exist the same number of PCNM axes as there are samples and to use them all means that we are overfitting out model. To select a subset of significant variables, we can use the \fun{ordistep} function. The function prints output to the screen after each iteration and stops once adding/removing a variable to/from the model no longer significantly improves the model fit.
+
+```{r echo=FALSE}
+
+# select particular variables to proceed with (here we use both forward and backward selection but could use either one separately)
+
+# set up the null cases with no predictors
+mod0.env <- capscale(endo.spp ~ 1, data=endo.env, distance='bray')
+mod0.pcnm <- capscale(endo.spp ~ 1, data=as.data.frame(scores(endo.pcnm)), distance='bray')
+
+# select variables in each predictor table
+step.env <- ordistep(mod0.env, scope=formula(cap.env))
+step.pcnm <- ordistep(mod0.pcnm, scope=formula(cap.pcnm))
+
+```
+
+We can then look at the result for each explanatory matrix including only those variables that best explain variation between communities. We can also look at the significance level associated with each variable included in this model.
+
+```{r}
+
+# species, tissue type, tissue CN ratio and N concentration predict variation in community composition
+step.env
+step.env$anova  # presents results in an ANOVA-like table
+
+# only six/seven of the PCNM axes appear to predict variation in community composition
+# significance of PCNM11 varies each time because it is based on permutations
+step.pcnm
+step.pcnm$anova  # presents results in an ANOVA-like table
+
+```
+
+Now we perform variation partitioning by including both types of predictor matrices as separate arguments, and only including the variables that appeared to be important for explaining variation.
+
+```{r}
+
+# create pcnm table with only significant axes
+endo.pcnm.sub <- scores(endo.pcnm, 
+  					choices=c(1:4, 6, 11, 14))
+
+# partition variation among three predictor tables:
+#   1) litter species and type
+#   2) litter chemistry
+#   3) spatial gradients
+endo.var <- varpart(vegdist(endo.spp, distance='bray'), 
+					~ species + type, 
+					~ CNratio + percentN, 
+					endo.pcnm.sub, data=endo.env)
+#endo.var
+par(mfrow=c(1, 2))
+showvarparts(3)
+plot(endo.var)
+endo.var
+
+```
+
+Then we can test the significance of each individual component. Here we use \fun{capscale} instead of RDA because we estimate Bray-Curtis distances. 
+
+```{r}
+
+# significance of partition X1
+anova(capscale(vegdist(endo.spp, distance='bray')	~ species + type 
+               + Condition(endo.env$CNratio) + Condition(endo.env$percentN) 
+               + Condition(endo.pcnm.sub), 
+               data=endo.env))
+
+# significance of partition X2
+anova(capscale(vegdist(endo.spp, distance='bray')	~ CNratio + percentN 
+               + Condition(endo.env$species) + Condition(endo.env$type) 
+               + Condition(endo.pcnm.sub), 
+               data=endo.env))
+
+# significance of partition X3
+anova(capscale(vegdist(endo.spp, distance='bray')	~ endo.pcnm.sub 
+               + Condition(endo.env$species) + Condition(endo.env$type) 
+               + Condition(endo.env$CNratio) + Condition(endo.env$percentN)))
+
+```

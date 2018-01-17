@@ -1,6 +1,6 @@
 rm(list = ls())
 library(ade4)
-source("./scripts/fourthcorner-auxilaryfunctions.R") ## R script containing functions for fitting models for fourth-corner analysis
+source("./code/fourthcorner-auxilaryfunctions.R") ## R script containing functions for fitting models for fourth-corner analysis
 
 data(aravo)
 str(aravo)
