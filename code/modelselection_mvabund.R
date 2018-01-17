@@ -1,7 +1,4 @@
-# Methods used to analyze associations between wood endophyte OTUs and environmental wood traits
-# Part 1: Distance and model-based methods
 
-require(vegan)
 require(mvabund)
 require(dplyr) # this has handy dataframe manipulation tools
 require(tidyr) # ditto
@@ -24,8 +21,6 @@ dim(otus)
 covariates <- exdata[['covariates']]
 head(covariates)
 
-# -------------------------------------------------------------------#
-
 # Trim out rare OTUs because they don't contribute much information
 minPerc <- 20
 numSamps <- dim(otus)[1]
@@ -41,35 +36,7 @@ covariates %>%
 
 # -------------------------------------------------------------------#
 
-# Use distance-based redundancy analysis (vegan::capscale) and model selection (ordistep) to determine which wood traits best explain variation in OTU composition
-
-# transform the OTU matrix to de-emphasize taxa with low abundances
-otus.t <- decostand(otus, 'hellinger')
-
-# build the unconstrained model
-mod0 <- capscale(otus.t ~ 1, data = envVars)
-
-# build the fully constrained model
-modfull <- capscale(otus.t ~ ., data=envVars, distance='bray')
-
-# model selection
-modstep <- ordistep(mod0, scope=formula(modfull))
-modstep
-# the constrained model explain ~13% of variation in the data (inertia proportion constrained)
-
-# summary table for the best model
-df <- data.frame(term=row.names(modstep$anova), modstep$anova)
-df %>%
-  separate(term, into=c("drop","term")) %>%
-  select(-drop) %>%
-  rename('pval'=`Pr..F.`) -> df
-df
-# model selection suggests that waterperc and size are the only traits that we need in the model to explain OTU composition
-
-
-# -------------------------------------------------------------------#
-
-# Use GLMs for multivariate abundance data (mvabund::manyglm) and model selection () to determine which wood traits best explain variation in OTU abundances
+# Use GLMs for multivariate abundance data (mvabund::manyglm) and model selection (AIC) to determine which wood traits best explain variation in OTU abundances
 
 # specify data for mvabund
 fung <- list(abund = otus, x = envVars)

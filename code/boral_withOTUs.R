@@ -1,12 +1,17 @@
-# Methods used to analyze associations between wood endophyte OTUs and environmental wood traits
-# Part 2: model-based methods continued -- boral
+
+# boral example
+# particularly designed for studies with very diverse communities, e.g. OTU data
+# custom functions to display ...
+# ... mcmc trace plots
+# ... distribution of shared enviroment and residual correlations
+# ... strength and direction of shared enviroment and residual correlations
 
 require(boral)
 require(dplyr) # this has handy dataframe manipulation tools
 require(tidyr) # ditto
 require(ggplot2) #plotting
 require(circlize) #chord diagrams
-source("code/woodEndophyte_auxilaryfunctions.R")
+source("code/boral_withOTUs_auxilaryfunctions.R")
 
 # -------------------------------------------------------------------#
 # load data --- this is the same as in part 1, just copied over
@@ -133,7 +138,7 @@ require(coda)
 # but as you can see, these boral models tend to have a ton of parameters
 
 # I've made some custom functions that I think work better for visualling all these parameters
-source("code/woodEndophyte_auxilaryfunctions.R") #copied from above
+source("code/boral_withOTUs_auxilaryfunctions.R")
 
 plotTrace.lvcoefs(mcmc.obj = mcmc.obj, mcmc.controls = mcmc.controls) # each line is a parameter associated with an OTU
 plotTrace.lvs(mcmc.obj = mcmc.obj, mcmc.controls = mcmc.controls) # each line is a parameter associated with an OTU
@@ -235,7 +240,7 @@ enviro.cor <- get.enviro.cor(fit.envlv, prob = 0.95)
 residual.cor <- get.residual.cor(fit.envlv, prob = 0.95)
 
 # these objects contain a lot of info, so I wrote a function to extract just the info I want...
-source("code/woodEndophyte_auxilaryfunctions.R") # copied from above
+source("code/boral_withOTUs_auxilaryfunctions.R")
 
 enviro.cor.df <- extract_cors(corobj = enviro.cor, corType = "enviro")
 residual.cor.df <- extract_cors(corobj = residual.cor, corType = "residual")
