@@ -75,6 +75,7 @@ for(i in 1:length(uniqSITE)){
   rowEffs[rowEffs$site==uniqSITE[i],"site"]<-i
 }
 rowEffs$site <- as.numeric(rowEffs$site)
+row.ids <- matrix(c(rowEffs$sample, rowEffs$site), ncol = 2)
 
 # set mcmc controls
 mcmc.controls <- list(n.burnin = 50,
@@ -98,7 +99,7 @@ fit.lv <- boral(y = otus,
              family = "negative.binomial",
              num.lv = 2,
              row.eff = "fixed",
-             row.ids = rowEffs,
+             row.ids = row.ids,
              calc.ics = TRUE, # for model selection
              save.model = TRUE, # to access mcmc samples
              mcmc.control = mcmc.controls,
@@ -111,7 +112,7 @@ fit.envlv <- boral(y = otus,
                    family = "negative.binomial",
                    num.lv = 2,
                    row.eff = "fixed",
-                   row.ids = rowEffs,
+                   row.ids = row.ids,
                    calc.ics = TRUE, # for model selection
                    save.model = TRUE, # to access mcmc samples
                    mcmc.control = mcmc.controls,
