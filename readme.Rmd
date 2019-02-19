@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Here are some tutorials that I have come across and have found helpful. I'll also post some code I've been working on. When possible, I've added R scripts and links. Feel free to suggest edits and additions.
+Here are some tutorials that I have come across and have found helpful. I'll also post some code I've been working on. When possible, I've added R scripts and links. 
 
 
 ## **vegan-centric**
