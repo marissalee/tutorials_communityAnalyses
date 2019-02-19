@@ -40,6 +40,7 @@ exdata <- readRDS(file = "data/woodEndophyte_exData.RData")
 # here's the OTU matrix
 otus <- exdata[['otus']]
 head(otus)
+
 # the OTU matrix has been minimally processed
 # it has been quality checked to remove failed samples (i.e. abundance of reads below a threshold) and remove OTUs that clearly are not fungal
 dim(otus)
@@ -79,7 +80,7 @@ ggplot(tmp, aes(x = OTU, y = num.reads)) +
 # -------------------------------------------------------------------#
 # Put data in mvabund-friendly format
 fung <- list(abund = otus, x = envVars)
-Dat <- mvabund(fung$abund, row.names=row.names(fung$abund)) # so R knows to treat coverDat as multivariate abundance
+Dat <- mvabund(fung$abund, row.names=row.names(fung$abund)) # so R knows to treat Dat as multivariate abundance
 size <- factor(fung$x$size)
 waterperc <- fung$x$waterperc
 density <- fung$x$density
@@ -115,8 +116,8 @@ meanvar.plot(Dat, xlab="Mean OTU reads", ylab="Variance in OTU reads") # with lo
 # This gives an analysis of deviance table where we use likelihood ratio tests and resampled p values to look for a significant effect of Habitat on the community data.
 
 ft.size <- manyglm(Dat ~ size, family="negative.binomial", composition = T)
-ft.density <- manyglm(Dat ~ density, family="negative.binomial", composition = T)
-ft.waterperc <- manyglm(Dat ~ waterperc, family="negative.binomial", composition = T)
+#ft.density <- manyglm(Dat ~ density, family="negative.binomial", composition = T)
+#ft.waterperc <- manyglm(Dat ~ waterperc, family="negative.binomial", composition = T)
 
 # check out what is the in the fitted model object
 str(ft.size)
@@ -127,8 +128,8 @@ ft.size$stderr.coefficients
 # if you have a linear relationship or fan shape, you might be modeling the wrong distribution
 # each color is associated with an OTU (and there aren't enough colors)
 plot(ft.size, which=1, cex=0.5, caption = "", xlab = "")
-plot(ft.density, which=1, cex=0.5, caption = "", xlab = "")
-plot(ft.waterperc, which=1, cex=0.5, caption = "", xlab = "")
+#plot(ft.density, which=1, cex=0.5, caption = "", xlab = "")
+#plot(ft.waterperc, which=1, cex=0.5, caption = "", xlab = "")
 
 # compute the analysis of deviance table -- be careful this can take a while
 # resamp = pit.trap (default); Method of resamping the distribution that accounts for correlation in testing
@@ -188,6 +189,11 @@ aic.list <- lapply(mod.list, function(x){
   sum(AIC(x)) # sum AIC values for each OTUId
 })
 aic.list
+
+bic.list <- lapply(mod.list, function(x){
+  sum(BIC(x)) # sum AIC values for each OTUId
+})
+bic.list
 
 #calculate deltaAIC = base AIC - candidate AIC
 baseAIC <- aic.list[['base']]
